@@ -3,6 +3,7 @@ using LegendKata.Models;
 using MetaBrainz.MusicBrainz;
 using MetaBrainz.MusicBrainz.Interfaces.Searches;
 using MetaBrainz.MusicBrainz.Interfaces.Entities;
+using LegendKata.MusicBrainz;
 
 namespace LegendKata.Controllers
 {
@@ -18,26 +19,29 @@ namespace LegendKata.Controllers
         {
             if (data != null)
             {
-                _searchEngineModel.SearchCriteria = data.SearchCriteria.Trim();
-                _searchEngineModel.StrictSearch = data.StrictSearch;
-            }
+                if (CheckIfDifferentRequest(data))
+                {
+                    _searchEngineModel.SearchCriteria = data.SearchCriteria.Trim();
+                    _searchEngineModel.StrictSearch = data.StrictSearch;
 
-            if (!string.IsNullOrWhiteSpace(_searchEngineModel.SearchCriteria))
-            {
-                await PopulateModel();
+                    await PopulateModel();
+                }
             }
-
 
             return View(_searchEngineModel);
+        }
+
+        private bool CheckIfDifferentRequest(SearchEngineModel data)
+        {
+            return !string.IsNullOrEmpty(data.SearchCriteria) && _searchEngineModel.SearchCriteria != data.SearchCriteria || _searchEngineModel.StrictSearch != data.StrictSearch;
         }
 
         private async Task PopulateModel()
         {
             try
             {
-                var q = new Query("RedStapler", "19.99", "mailto:milton.waddams@initech.com");
+                var q = QueryGenerator.GetQuery();
 
-                //  new Query("Legend Kata", "1.0", "girugiru100x@gmail.com");
                 var artistsQuery = await q.FindArtistsAsync(_searchEngineModel.SearchCriteria);
 
                 List<Artist> artists = new();
@@ -74,6 +78,7 @@ namespace LegendKata.Controllers
         private async Task<List<Song>> GetSongsForArtist(ISearchResult<IArtist> artist, Query q)
         {
             List<Song> songs = new();
+
             try
             {
                 var songsQuery = await q.BrowseArtistReleasesAsync(artist.Item.Id);
@@ -99,6 +104,5 @@ namespace LegendKata.Controllers
 
             return songs;
         }
-
     }
 }
