@@ -1,0 +1,60 @@
+﻿@model LegendKata.Models.SearchEngineModel
+
+@{
+    ViewData["Title"] = "SearchEngine";
+}
+
+<h1>MusicBrainz Search Engine</h1>
+
+<div>
+    <h4>Returns all artists and songs for the specified input</h4>
+    <hr />
+    @using (Html.BeginForm("SearchEngine", "SearchEngine", FormMethod.Post))
+    {
+
+        <div class="input-group mb-3 pt-5">
+
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Name</span>
+            </div>
+
+            @Html.TextBoxFor(Model => Model.SearchCriteria, new { @class = "form-control" })
+
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-success">Search</button>
+            </div>
+
+            <div class="row">
+                <span>Strict Search: </span> @Html.CheckBoxFor(Model => Model.StrictSearch)
+            </div>
+
+        </div>
+    }
+
+
+    @if (Model != null && Model.Artists != null && Model.Artists.Count > 0)
+    {
+        @foreach (var artist in Model.Artists)
+        {
+            <div class="row my-3 p-3 bg-white rounded box-shadow">
+
+                <h5>@artist.Name</h5>
+                @if (artist.Songs != null && artist.Songs.Count > 0)
+                {
+                    <ul class="list-group">
+                        @foreach (var song in artist.Songs)
+                        {
+                            <li class="list-group-item">@song.Name</li>
+
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>@artist.Name has no songs</p>
+                }
+
+            </div>
+        }
+    }
+</div>
