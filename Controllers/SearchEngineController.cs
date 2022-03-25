@@ -26,7 +26,7 @@ namespace LegendKata.Controllers
             {
                 await PopulateModel();
             }
-            
+
 
             return View(_searchEngineModel);
         }
@@ -80,10 +80,16 @@ namespace LegendKata.Controllers
 
                 foreach (var song in songsQuery.Results)
                 {
-                    songs.Add(new Song()
+                    if (song != null)
                     {
-                        Name = song?.Title
-                    });
+                        if (!songs.Any(x => x.Name == song.Title)) //remove duplicates
+                        {
+                            songs.Add(new Song()
+                            {
+                                Name = song.Title
+                            });
+                        }
+                    }
                 }
             }
             catch (Exception ex)
